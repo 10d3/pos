@@ -3,11 +3,16 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const SessionDuration = 24 * 60 * 60 * 1000;
+export const expires = Date.now() + SessionDuration;
+
 export async function POST(request: Request) {
-  const { email, password, name } = await request.json();
+  const { email, password } = await request.json();
 
   const user = await prisma.user.findUnique({
-    where: email ? email : name,
+    where: {
+      email,
+    },
   });
 
   if (!user) {
@@ -24,11 +29,13 @@ export async function POST(request: Request) {
       { status: 401 }
     );
   }
-  const token = generateToken({
+  const token = await generateToken({
     id: user.id,
     email: user.email,
     name: user.name,
-    role: user.role
+    role: user.role,
   });
-  return NextResponse.json({ success: true, token });
+  const response = NextResponse.json({ success: true });
+  response.cookies.set("token", token, { httpOnly: true, path: "/", expires : new Date(expires)});
+  return response
 }

@@ -25,6 +25,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { logout } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
   user,
@@ -37,6 +39,13 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
 
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -47,7 +56,7 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user?.avatar ? user.avatar : "/avatars/shadcn.jpg"} alt={user?.name ? user.name : "test"} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -98,7 +107,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={()=> handleLogout()}>
               <LogOut />
               Log out
             </DropdownMenuItem>

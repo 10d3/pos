@@ -21,6 +21,18 @@ import {
 import { TeamSwitcher } from "./team-switcher";
 import { NavProjects } from "./nav-project";
 
+type User = {
+  id: string
+  name: string;
+  email: string;
+  avatar: string;
+  role: string
+}
+
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  user: User;
+}
+
 const data = {
   user: {
     name: "shadcn",
@@ -140,7 +152,7 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -151,7 +163,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

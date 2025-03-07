@@ -1,10 +1,12 @@
+'use server'
 import jsw from "jsonwebtoken";
 import { env } from "./env";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
+import { expires } from "@/app/api/auth/login/route";
 
 const JSON_WEB_TOKEN = env.JSON_WEB_TOKEN;
 
-export function generateToken(user: {
+export async function generateToken(user: {
   id: string;
   email: string;
   name: string;
@@ -13,11 +15,11 @@ export function generateToken(user: {
   return jsw.sign(
     { id: user.id, email: user.email, name: user.name, role: user.role },
     JSON_WEB_TOKEN,
-    { expiresIn: "12h" }
+    { expiresIn: expires }
   );
 }
 
-export function verifyToken(token: string) {
+export async function verifyToken(token: string) {
   try {
     const decoded = jsw.verify(token, JSON_WEB_TOKEN);
     return decoded;
@@ -28,11 +30,19 @@ export function verifyToken(token: string) {
 }
 
 export async function auth() {
-  const headersList = headers();
-  const authHeader = (await headersList).get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+
+  if (!token) {
     return null;
   }
-  const token = authHeader.split(" ")[1];
-  return verifyToken(token);
+
+  return verifyToken(token.value);
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  // Set cookie to expire immediately
+  cookieStore.delete("token");
+  return { success: true };
 }
