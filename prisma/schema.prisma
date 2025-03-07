@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  hashedPassword String // Stocke le mot de passe ou le PIN haché
+  role           String // Ex: "STAFF" ou "ADMIN"
+  createdAt      DateTime @default(now())
+
+  // L'utilisateur (staff) peut être associé à plusieurs commandes
+  orders Order[]
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  available   Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  OrderItem   OrderItem[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  staffId   String // Référence à l'utilisateur (staff) qui a créé la commande
+  total     Float
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  // Relation avec les éléments de commande
+  orderItems OrderItem[]
+
+  // Relation vers le staff ayant pris la commande
+  staff User @relation(fields: [staffId], references: [id])
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+
+  // Relations
+  order    Order    @relation(fields: [orderId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  // Relation avec les transactions de fidélité
+  loyaltyTransactions LoyaltyTransaction[]
+}
+
+model LoyaltyTransaction {
+  id         String          @id @default(cuid())
+  customerId String
+  points     Int // Points gagnés (positif) ou utilisés (négatif)
+  type       TransactionType // EARNED ou REDEEMED
+  createdAt  DateTime        @default(now())
+
+  // Relation vers le client
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  EARNED
+  REDEEMED
+}

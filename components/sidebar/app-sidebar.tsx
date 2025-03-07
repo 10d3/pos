@@ -3,24 +3,20 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  // SidebarGroup,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import {
-  // AudioWaveform,
   BookOpen,
   Bot,
   Frame,
-  // Command,
   GalleryVerticalEnd,
   MenuIcon,
   PieChart,
   Settings2,
   Map
-  // SquareTerminal,
 } from "lucide-react";
 import { TeamSwitcher } from "./team-switcher";
 import { NavProjects } from "./nav-project";
