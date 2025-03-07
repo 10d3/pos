@@ -1,5 +1,6 @@
 import jsw from "jsonwebtoken";
 import { env } from "./env";
+import { headers } from "next/headers";
 
 const JSON_WEB_TOKEN = env.JSON_WEB_TOKEN;
 
@@ -24,4 +25,14 @@ export function verifyToken(token: string) {
     console.log(error);
     return error;
   }
+}
+
+export async function auth() {
+  const headersList = headers();
+  const authHeader = (await headersList).get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    return null;
+  }
+  const token = authHeader.split(" ")[1];
+  return verifyToken(token);
 }
