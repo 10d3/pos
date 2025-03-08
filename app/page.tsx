@@ -118,14 +118,14 @@ export default function Home() {
           <div className="w-full flex justify-center pb-6">
             <Image
               className="hidden w-auto h-10 dark:block "
-              src="/images/tsherles.jpeg"
+              src="/images/tsherles.png"
               height={1000}
               width={1000}
               alt="logo of sayit"
             />
             <Image
-              className="block w-auto h-10 dark:hidden"
-              src="/images/tsherles.jpeg"
+              className="block w-60 h-auto dark:hidden"
+              src="/images/tsherles.png"
               height={1000}
               width={1000}
               alt="logo of sayit"
