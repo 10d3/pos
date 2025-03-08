@@ -26,3 +26,5 @@ export interface Table {
   itemCount: number;
   status?: "in process" | "completed" | "pending";
 }
+
+export type OrderStatus = "pending" | "completed" | "cancelled";
