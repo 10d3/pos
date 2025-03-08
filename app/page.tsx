@@ -98,7 +98,7 @@ export default function Home() {
     }
   };
 
-  const images = ["/slide2.jpg", "/slide1.jpg", "/slide.jpg"];
+  const images = ["/images/tsherles52 .jpeg", "/images/tsherles55 .jpeg", "/images/tsherles56 .jpeg" ];
 
   return (
     <div className="flex flex-col md:flex-row h-dvh items-center md:pl-3">
@@ -115,17 +115,17 @@ export default function Home() {
       </div>
       <div className=" flex-1 flex flex-col justify-center items-center p-6 md:p-12">
         <div className="w-full max-w-md">
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center pb-6">
             <Image
               className="hidden w-auto h-10 dark:block "
-              src="/PlanD.png"
+              src="/images/tsherles.jpeg"
               height={1000}
               width={1000}
               alt="logo of sayit"
             />
             <Image
               className="block w-auto h-10 dark:hidden"
-              src="/logoL.png"
+              src="/images/tsherles.jpeg"
               height={1000}
               width={1000}
               alt="logo of sayit"

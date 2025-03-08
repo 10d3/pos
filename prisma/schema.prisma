@@ -19,7 +19,7 @@ model User {
   email          String   @unique
   name           String
   hashedPassword String // Stocke le mot de passe ou le PIN haché
-  role           String // Ex: "STAFF" ou "ADMIN"
+  role           Role     @default(STAFF)
   createdAt      DateTime @default(now())
 
   // L'utilisateur (staff) peut être associé à plusieurs commandes
@@ -93,4 +93,9 @@ enum OrderStatus {
 enum TransactionType {
   EARNED
   REDEEMED
+}
+
+enum Role {
+  ADMIN
+  STAFF
 }
