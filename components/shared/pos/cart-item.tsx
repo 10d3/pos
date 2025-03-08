@@ -22,11 +22,11 @@ export function CartItem({ item }: CartItemProps) {
       <div className="flex-1">
         <div className="flex justify-between mb-1">
           <span className="font-medium">{item.name}</span>
-          <span className="font-medium">{(item.price * item.quantity).toFixed(2)} €</span>
+          {/* <span className="font-medium">{(item.price * item.quantity).toFixed(2)} €</span> */}
         </div>
         <div className="flex items-center text-sm text-muted-foreground">
           <span>
-            {item.price.toFixed(2)} € × {item.quantity}
+            {item.price.toFixed(2)} HTG × {item.quantity}
           </span>
         </div>
       </div>

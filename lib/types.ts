@@ -27,4 +27,4 @@ export interface Table {
   status?: "in process" | "completed" | "pending";
 }
 
-export type OrderStatus = "pending" | "completed" | "cancelled";
+export type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";

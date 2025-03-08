@@ -30,6 +30,7 @@ model MenuItem {
   id          String      @id @default(cuid())
   name        String
   description String?
+  category    String
   price       Float
   available   Boolean     @default(true)
   createdAt   DateTime    @default(now())
@@ -37,11 +38,21 @@ model MenuItem {
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  staffId   String // Référence à l'utilisateur (staff) qui a créé la commande
-  total     Float
-  status    OrderStatus @default(PENDING)
-  createdAt DateTime    @default(now())
+  id              String      @id @default(cuid())
+  staffId         String // Référence à l'utilisateur (staff) qui a créé la commande
+  total           Float
+  status          OrderStatus @default(PENDING)
+  createdAt       DateTime    @default(now())
+  pointsUsed      Int?        @default(0)
+  pointsEarned    Int?        @default(0)
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  customerId      String?
+  orderType       OrderType
+  notes           String?
+  tableNumber     String?
+  deliveryAddress String?
+  phone           Int?
+  orderId         String?
 
   // Relation avec les éléments de commande
   orderItems OrderItem[]
@@ -68,6 +79,7 @@ model Customer {
   phone     String?
   points    Int      @default(0)
   createdAt DateTime @default(now())
+  orders    Order[]
 
   // Relation avec les transactions de fidélité
   loyaltyTransactions LoyaltyTransaction[]
@@ -98,4 +110,10 @@ enum TransactionType {
 enum Role {
   ADMIN
   STAFF
+}
+
+enum OrderType {
+  DINNER
+  DELIVERY
+  TAKEAWAY
 }

@@ -12,7 +12,7 @@ interface Order {
   id: string
   items: OrderItem[]
   subtotal: number
-  tax: number
+  tax?: number
   total: number
   orderType: "DINNER" | "TAKEAWAY" | "DELIVERY"
   tableNumber?: string | null
@@ -21,13 +21,13 @@ interface Order {
   notes?: string
   staffId: string
   date: string
-  status: "pending" | "completed" | "cancelled"
+  status: "PENDING" | "COMPLETED" | "CANCELLED"
 }
 
 interface OrderStore {
   orders: Order[]
   addOrder: (order: Order) => void
-  updateOrderStatus: (orderId: string, status: "pending" | "completed" | "cancelled") => void
+  updateOrderStatus: (orderId: string, status: "PENDING" | "COMPLETED" | "CANCELLED") => void
   getOrderById: (orderId: string) => Order | undefined
 }
 
