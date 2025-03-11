@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 
 // app/api/orders/route.ts
 export async function POST(request: Request) {
-  const { customerId, pointsUsed, items, subtotal, createdAt, date, id, ...orderData } = await request.json();
+  const { customerId, pointsUsed, items, subtotal, createdAt, date, id, phone, ...orderData } = await request.json();
 
-  console.log(subtotal, createdAt, date)
+  console.log(subtotal, createdAt, date, phone)
 
   // Calculate points earned
   const pointsEarned = Math.floor(orderData.total * env.POINTS_PER_DOLLAR);

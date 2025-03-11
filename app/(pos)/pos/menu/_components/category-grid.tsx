@@ -11,13 +11,13 @@ interface CategoryGridProps {
 
 export function CategoryGrid({ categories, selectedCategory, onSelectCategory }: CategoryGridProps) {
   return (
-    <div className="grid grid-cols-4 md:grid-cols-8 gap-2 p-2 border-b">
+    <div className="grid grid-cols-4 gap-2 p-2">
       {categories.map((category) => (
         <button
           key={category.id}
           onClick={() => onSelectCategory(category.id)}
           className={cn(
-            "flex flex-col items-center p-2 rounded-lg transition-colors",
+            "flex flex-col items-start p-4 rounded-lg transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             selectedCategory === category.id ? "bg-accent/50" : "bg-accent/10",
             category.id === "breakfast" && "bg-emerald-100/20",
@@ -30,8 +30,9 @@ export function CategoryGrid({ categories, selectedCategory, onSelectCategory }:
             category.id === "alcohol" && "bg-emerald-100/20",
           )}
         >
-          <div className="text-2xl mb-1">{category.icon}</div>
-          <div className="text-xs font-medium">{category.name}</div>
+          <div className="text-2xl mb-2">{category.icon}</div>
+          <div className="font-medium">{category.name}</div>
+          <div className="text-sm text-muted-foreground">{category.itemCount} items</div>
         </button>
       ))}
     </div>

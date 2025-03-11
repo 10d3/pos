@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { OrderStatus } from "../types"
 
 interface OrderItem {
   id: string
@@ -21,7 +22,7 @@ interface Order {
   notes?: string
   staffId: string
   date: string
-  status: "PENDING" | "COMPLETED" | "CANCELLED"
+  status: OrderStatus
 }
 
 interface OrderStore {

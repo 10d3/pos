@@ -1,171 +1,195 @@
-"use client";
+"use client"
+import type React from "react"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar";
-import { NavMain } from "./nav-main";
-import { NavUser } from "./nav-user";
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { NavMain } from "./nav-main"
+import { NavUser } from "./nav-user"
 import {
-  BookOpen,
-  Bot,
-  Frame,
-  GalleryVerticalEnd,
-  MenuIcon,
-  PieChart,
-  Settings2,
-  Map
-} from "lucide-react";
-import { TeamSwitcher } from "./team-switcher";
-import { NavProjects } from "./nav-project";
+  BarChart4,
+  ChefHat,
+  ClipboardList,
+  Coffee,
+  Home,
+  LayoutGrid,
+  Settings,
+  Store,
+  Users,
+  Utensils,
+} from "lucide-react"
+import { RestaurantSwitcher } from "./restaurant-switcher"
+import { NavShortcuts } from "./nav-shortcuts"
+// import { TeamSwitcher } from "./team-switcher"
 
 type User = {
   id: string
-  name: string;
-  email: string;
-  avatar: string;
+  name: string
+  email: string
+  avatar: string
   role: string
 }
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  user: User;
+  user: User
 }
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    id: "1",
+    name: "John Doe",
+    email: "john@restaurant.com",
+    avatar: "/placeholder.svg?height=40&width=40",
+    role: "Manager",
   },
-  teams: [
+  restaurants: [
     {
-      name: "Tsherles Bar Restaurant",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      name: "T-Sherles Bar Restaurant",
+      logo: Store,
+      location: "Rue Saint-Anne",
     },
   ],
   navMain: [
     {
-      title: "Menu",
-      url: "#",
-      icon: MenuIcon,
-      isActive: true,
-      // items: [
-      //   {
-      //     title: "History",
-      //     url: "#",
-      //   },
-      //   {
-      //     title: "Starred",
-      //     url: "#",
-      //   },
-      //   {
-      //     title: "Settings",
-      //     url: "#",
-      //   },
-      // ],
+      title: "Dashboard",
+      url: "/pos",
+      icon: Home,
+      isActive: false,
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
+      title: "Orders",
+      url: "/pos/orders",
+      icon: ClipboardList,
+      isActive: true,
+    },
+    {
+      title: "Menu",
+      url: "/pos/menu",
+      icon: Coffee,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "All Items",
+          url: "/pos/menu",
         },
+        // {
+        //   title: "Categories",
+        //   url: "/pos/menu/categories",
+        // },
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
+          title: "Specials",
+          url: "/pos/menu/specials",
         },
       ],
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
+      title: "Tables",
+      url: "/pos/tables",
+      icon: LayoutGrid,
+    },
+    {
+      title: "Customers",
+      url: "/pos/customers",
+      icon: Users,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "All Customers",
+          url: "/pos/customers",
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Loyalty Program",
+          url: "/pos/customers/loyalty",
+        },
+      ],
+    },
+    {
+      title: "Reports",
+      url: "/pos/reports",
+      icon: BarChart4,
+      items: [
+        {
+          title: "Sales",
+          url: "/pos/reports/sales",
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: "Inventory",
+          url: "/pos/reports/inventory",
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: "Staff Performance",
+          url: "/pos/reports/staff",
         },
       ],
     },
     {
       title: "Settings",
-      url: "#",
-      icon: Settings2,
+      url: "/pos/settings",
+      icon: Settings,
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/pos/settings/general",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Printers",
+          url: "/pos/settings/printers",
         },
         {
-          title: "Billing",
-          url: "#",
+          title: "Staff",
+          url: "/pos/settings/staff",
         },
         {
-          title: "Limits",
-          url: "#",
+          title: "Payment Methods",
+          url: "/pos/settings/payment",
         },
       ],
     },
   ],
-  projects: [
+  shortcuts: [
     {
-      name: "Menu",
-      url: "/pos/menu",
-      icon: Frame,
+      name: "New Order",
+      url: "/pos/orders/new",
+      icon: ClipboardList,
+      color: "bg-primary/10 text-primary",
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Kitchen View",
+      url: "/pos/kitchen",
+      icon: ChefHat,
+      color: "bg-orange-500/10 text-orange-500",
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Reservations",
+      url: "/pos/reservations",
+      icon: Utensils,
+      color: "bg-blue-500/10 text-blue-500",
     },
   ],
-};
+}
 
-export function AppSidebar({user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user = data.user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <SidebarHeader className="border-b py-[10]">
+        <RestaurantSwitcher restaurants={data.restaurants} />
+        {/* <TeamSwitcher teams={data.restaurants} /> */}
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col gap-6 py-4">
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <div className="px-4 py-2">
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">Quick Access</h3>
+          <NavShortcuts shortcuts={data.shortcuts} />
+        </div>
+        <SidebarTrigger className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t">
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }
+

@@ -1,73 +1,74 @@
-"use client";
+"use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import * as React from "react"
+import Link from "next/link"
+import type { LucideIcon } from "lucide-react"
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 
-export function NavMain({
-  items,
-}: {
+interface NavMainProps {
   items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
+    title: string
+    url: string
+    icon: LucideIcon
+    isActive?: boolean
     items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Point of Sales</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
-  );
+      title: string
+      url: string
+      isActive?: boolean
+    }[]
+  }[]
 }
+
+export function NavMain({ items }: NavMainProps) {
+  const [openItems, setOpenItems] = React.useState<string[]>([])
+
+  return (
+    <div className="grid gap-1 px-2">
+      {items.map((item, index) =>
+        !item.items || item.items.length === 0 ? (
+          <Button
+            key={index}
+            variant={item.isActive ? "secondary" : "ghost"}
+            className={cn("flex h-10 w-full justify-start gap-3", item.isActive && "bg-secondary")}
+            asChild
+          >
+            <Link href={item.url}>
+              <item.icon className="h-5 w-5" />
+              <span>{item.title}</span>
+            </Link>
+          </Button>
+        ) : (
+          <Accordion key={index} type="multiple" value={openItems} onValueChange={setOpenItems} className="space-y-1">
+            <AccordionItem value={item.title} className="border-none">
+              <AccordionTrigger
+                className={cn(
+                  "flex h-10 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                  item.isActive && "bg-secondary text-secondary-foreground",
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="flex-1 text-left">{item.title}</span>
+              </AccordionTrigger>
+              <AccordionContent className="ml-10 mt-1 space-y-1 pb-1 pl-1 pt-0">
+                {item.items.map((subItem, subIndex) => (
+                  <Button
+                    key={subIndex}
+                    variant={subItem.isActive ? "secondary" : "ghost"}
+                    className="h-8 w-full justify-start"
+                    asChild
+                  >
+                    <Link href={subItem.url}>{subItem.title}</Link>
+                  </Button>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        ),
+      )}
+    </div>
+  )
+}
+
