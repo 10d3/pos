@@ -44,24 +44,24 @@ const data = {
     name: "John Doe",
     email: "john@restaurant.com",
     avatar: "/placeholder.svg?height=40&width=40",
-    role: "Manager",
+    role: "Gérant",
   },
   restaurants: [
     {
-      name: "T-Sherles Bar Restaurant",
+      name: "Bar Restaurant T-Sherles",
       logo: Store,
       location: "Rue Saint-Anne",
     },
   ],
   navMain: [
     {
-      title: "Dashboard",
+      title: "Tableau de bord",
       url: "/pos",
       icon: Home,
       isActive: false,
     },
     {
-      title: "Orders",
+      title: "Commandes",
       url: "/pos/orders",
       icon: ClipboardList,
       isActive: true,
@@ -72,15 +72,15 @@ const data = {
       icon: Coffee,
       items: [
         {
-          title: "All Items",
+          title: "Tous les articles",
           url: "/pos/menu",
         },
         // {
-        //   title: "Categories",
+        //   title: "Catégories",
         //   url: "/pos/menu/categories",
         // },
         {
-          title: "Specials",
+          title: "Spécialités",
           url: "/pos/menu/specials",
         },
       ],
@@ -91,58 +91,58 @@ const data = {
       icon: LayoutGrid,
     },
     {
-      title: "Customers",
+      title: "Clients",
       url: "/pos/customers",
       icon: Users,
       items: [
         {
-          title: "All Customers",
+          title: "Tous les clients",
           url: "/pos/customers",
         },
         {
-          title: "Loyalty Program",
+          title: "Programme de fidélité",
           url: "/pos/customers/loyalty",
         },
       ],
     },
     {
-      title: "Reports",
+      title: "Rapports",
       url: "/pos/reports",
       icon: BarChart4,
       items: [
         {
-          title: "Sales",
+          title: "Ventes",
           url: "/pos/reports/sales",
         },
         {
-          title: "Inventory",
+          title: "Inventaire",
           url: "/pos/reports/inventory",
         },
         {
-          title: "Staff Performance",
+          title: "Performance du personnel",
           url: "/pos/reports/staff",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Paramètres",
       url: "/pos/settings",
       icon: Settings,
       items: [
         {
-          title: "General",
+          title: "Général",
           url: "/pos/settings/general",
         },
         {
-          title: "Printers",
+          title: "Imprimantes",
           url: "/pos/settings/printers",
         },
         {
-          title: "Staff",
+          title: "Personnel",
           url: "/pos/settings/staff",
         },
         {
-          title: "Payment Methods",
+          title: "Modes de paiement",
           url: "/pos/settings/payment",
         },
       ],
@@ -150,19 +150,19 @@ const data = {
   ],
   shortcuts: [
     {
-      name: "New Order",
+      name: "Nouvelle commande",
       url: "/pos/orders/new",
       icon: ClipboardList,
       color: "bg-primary/10 text-primary",
     },
     {
-      name: "Kitchen View",
+      name: "Vue cuisine",
       url: "/pos/kitchen",
       icon: ChefHat,
       color: "bg-orange-500/10 text-orange-500",
     },
     {
-      name: "Reservations",
+      name: "Réservations",
       url: "/pos/reservations",
       icon: Utensils,
       color: "bg-blue-500/10 text-blue-500",

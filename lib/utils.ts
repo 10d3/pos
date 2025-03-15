@@ -43,3 +43,10 @@ export function getTimeElapsed(date: Date): string {
     return `${hours}h ${minutes}m ago`
   }
 }
+
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "HTG",
+  }).format(price)
+}
