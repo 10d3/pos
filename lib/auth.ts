@@ -2,9 +2,11 @@
 import jsw from "jsonwebtoken";
 import { env } from "./env";
 import { cookies } from "next/headers";
-import { expires } from "@/app/api/auth/login/route";
 
 const JSON_WEB_TOKEN = env.JSON_WEB_TOKEN;
+
+const SessionDuration = 24 * 60 * 60 * 1000;
+const expires = Date.now() + SessionDuration;
 
 export async function generateToken(user: {
   id: string;

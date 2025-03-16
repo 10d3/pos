@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { useCartStore } from "@/lib/stores/cart-store"
+import { useCartStore } from "@/lib/store/cart-store"
 
 interface MenuItem {
   id: string

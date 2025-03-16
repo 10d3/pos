@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { CategoryGrid } from "./category-grid";
 import { MenuItems } from "./menu-items";
@@ -17,33 +17,45 @@ import { OrderHistoryDrawer } from "@/components/shared/pos/order-history-drawer
 import { useCartStore } from "@/lib/store/cart-store";
 import { CartSection } from "@/components/shared/pos/cart-section";
 
-interface user{
-    id: string,
-    name : string,
-    email: string,
-    role: string
-  }
+interface user {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 interface RestaurantPOSType {
- user: user
- menuItems: any
+  user: user;
+  menuItems: any;
 }
-export default function RestaurantPOS({user, menuItems} : RestaurantPOSType) {
+export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-  const [lastOrderData, setLastOrderData] = useState<any>(null)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [lastOrderData, setLastOrderData] = useState<any>(null);
 
-  console.log(menuItems)
+  const categoriesWithCounts = useMemo(() => {
+    const counts = menuItems.reduce((acc: any, item: any) => {
+      acc[item.category] = (acc[item.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return categories.map((category) => ({
+      ...category,
+      itemCount: counts[category.id] || 0,
+    }));
+  }, [menuItems]);
+
+  console.log(menuItems);
 
   const { items, addItem, updateQuantity } = useCartStore();
 
   const handleOrderComplete = (orderData: any) => {
-    setIsCheckoutOpen(false)
-    setLastOrderData(orderData)
-    setIsConfirmationOpen(true)
-  }
+    setIsCheckoutOpen(false);
+    setLastOrderData(orderData);
+    setIsConfirmationOpen(true);
+  };
 
   const filteredItems = menuItems.filter(
     (item: any) => item.category === selectedCategory
@@ -72,7 +84,7 @@ export default function RestaurantPOS({user, menuItems} : RestaurantPOSType) {
 
         {/* Categories */}
         <CategoryGrid
-          categories={categories}
+          categories={categoriesWithCounts}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
@@ -92,9 +104,16 @@ export default function RestaurantPOS({user, menuItems} : RestaurantPOSType) {
       </div>
 
       {/* Order summary sidebar */}
-      {items.length != 0 && <CartSection onCheckout={() => setIsCheckoutOpen(true)} />}
+      {items.length != 0 && (
+        <CartSection onCheckout={() => setIsCheckoutOpen(true)} />
+      )}
 
-      <CheckoutModal user={user} open={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} onComplete={handleOrderComplete} />
+      <CheckoutModal
+        user={user}
+        open={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onComplete={handleOrderComplete}
+      />
 
       <OrderConfirmationModal
         open={isConfirmationOpen}
@@ -102,7 +121,10 @@ export default function RestaurantPOS({user, menuItems} : RestaurantPOSType) {
         orderData={lastOrderData}
       />
 
-      <OrderHistoryDrawer open={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+      <OrderHistoryDrawer
+        open={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+      />
     </div>
   );
 }

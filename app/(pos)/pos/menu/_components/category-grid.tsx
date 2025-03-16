@@ -1,12 +1,17 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import type { Category } from "@/lib/types"
+// import type { Category } from "@/lib/types"
 
 interface CategoryGridProps {
-  categories: Category[]
-  selectedCategory: string
-  onSelectCategory: (id: string) => void
+  categories: {
+    id: string;
+    name: string;
+    icon: string;
+    itemCount: number;
+  }[];
+  selectedCategory: string;
+  onSelectCategory: (id: string) => void;
 }
 
 export function CategoryGrid({ categories, selectedCategory, onSelectCategory }: CategoryGridProps) {

@@ -151,7 +151,7 @@ const data = {
   shortcuts: [
     {
       name: "Nouvelle commande",
-      url: "/pos/orders/new",
+      url: "/pos/menu",
       icon: ClipboardList,
       color: "bg-primary/10 text-primary",
     },

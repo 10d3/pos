@@ -4,7 +4,7 @@ import { generateToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const SessionDuration = 24 * 60 * 60 * 1000;
-export const expires = Date.now() + SessionDuration;
+const expires = Date.now() + SessionDuration;
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();

@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Table } from "@/lib/types";
+import { OrderStatus } from "@prisma/client";
 
 interface TableStatusProps {
   tables: Table[];
@@ -14,7 +15,7 @@ export function TableStatus({ tables }: TableStatusProps) {
           key={table.id}
           className={cn(
             "flex items-center p-4 mr-2 rounded-lg min-w-64 border",
-            table.status === "in process" &&
+            table.status === OrderStatus.PREPARING &&
               "bg-emerald-50/10 border-emerald-200/20"
           )}
         >
@@ -28,7 +29,7 @@ export function TableStatus({ tables }: TableStatusProps) {
               Kitchen
             </div>
           </div>
-          {table.status === "in process" && (
+          {table.status === OrderStatus.PREPARING && (
             <div className="text-xs bg-emerald-500/20 text-emerald-700 px-2 py-0.5 rounded-full">
               In process
             </div>

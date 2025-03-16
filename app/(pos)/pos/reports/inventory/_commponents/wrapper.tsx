@@ -14,7 +14,7 @@ export default function Wrapper({ menuItems }: any) {
       ...new Set(menuItems.map((item:any) => item.category)),
     ];
     return uniqueCategories.sort(); // Sort alphabetically
-  }, []);
+  }, [menuItems]);
 
   console.log(categories)
 

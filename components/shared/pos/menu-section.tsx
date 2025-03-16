@@ -4,9 +4,9 @@ import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { MenuCard } from "@/components/pos/menu-card"
-import { useCartStore } from "@/lib/stores/cart-store"
 import { Search } from "lucide-react"
+import { useCartStore } from "@/lib/store/cart-store"
+import { MenuCard } from "./menu-card"
 
 // Catégories de menu
 const categories = [

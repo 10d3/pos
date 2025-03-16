@@ -66,21 +66,34 @@ export function CheckoutModal({
   const [maxRedeemablePoints, setMaxRedeemablePoints] = useState(0);
   const [total, setTotal] = useState(initialTotal);
   const [lookupLoading, setLookupLoading] = useState(false);
+  const [currentTab, setCurrentTab] = useState("details");
 
   const POINTS_PER_DOLLAR = 1;
   const REDEEM_RATE = 100; // 100 points = $1
+
+  useEffect(() => {
+    if (open) {
+      setCurrentTab("details");
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (pointsToRedeem === 0) {
+      setTotal(initialTotal);
+    }
+  }, [pointsToRedeem, initialTotal]);
 
   useEffect(() => {
     setTotal(initialTotal);
   }, [initialTotal]);
 
   useEffect(() => {
-    if (customer && total) {
+    if (customer && initialTotal) {
       const maxFromPoints = customer.points;
-      const maxFromTotal = Math.floor(total * REDEEM_RATE);
+      const maxFromTotal = Math.floor(initialTotal * REDEEM_RATE);
       setMaxRedeemablePoints(Math.min(maxFromPoints, maxFromTotal));
     }
-  }, [customer, total]);
+  }, [customer, initialTotal]);
 
   const handleLookupCustomer = async () => {
     if (!phone) return;
@@ -90,6 +103,7 @@ export function CheckoutModal({
       const data = await response.json();
       setCustomer(data);
       setPointsToRedeem(0);
+      setTotal(initialTotal); // Reset total when looking up new customer
     } catch (error) {
       console.error("Customer lookup failed:", error);
     } finally {
@@ -99,6 +113,7 @@ export function CheckoutModal({
 
   const handleRedeemPoints = () => {
     if (!customer || pointsToRedeem <= 0) return;
+
     const discount = pointsToRedeem / REDEEM_RATE;
     const newTotal = Math.max(initialTotal - discount, 0);
     setTotal(newTotal);
@@ -170,6 +185,7 @@ export function CheckoutModal({
     setCustomer(null);
     setPointsToRedeem(0);
     setTotal(initialTotal);
+    setCurrentTab("details")
   };
 
   const getOrderTypeIcon = (type: OrderType) => {
@@ -191,9 +207,35 @@ export function CheckoutModal({
             {getOrderTypeIcon(orderType)}
             Finalize Order
           </DialogTitle>
+          <div className="mt-4">
+            <div className="flex justify-between mb-1">
+              <span className="text-xs text-muted-foreground">
+                Order Details
+              </span>
+              <span className="text-xs text-muted-foreground">Customer</span>
+              <span className="text-xs text-muted-foreground">Summary</span>
+            </div>
+            <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-primary h-full transition-all duration-300 rounded-full"
+                style={{
+                  width:
+                    currentTab === "details"
+                      ? "33%"
+                      : currentTab === "customer"
+                      ? "66%"
+                      : "100%",
+                }}
+              />
+            </div>
+          </div>
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="w-full">
+        <Tabs
+          value={currentTab} // Change from defaultValue to value
+          className="w-full"
+          onValueChange={setCurrentTab}
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details">Order Details</TabsTrigger>
             <TabsTrigger value="customer">Customer</TabsTrigger>
@@ -203,17 +245,21 @@ export function CheckoutModal({
           <TabsContent value="details" className="space-y-4 py-4">
             <div className="space-y-3">
               <Label className="text-sm font-medium">Order Type</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {(["DINNER", "TAKEAWAY", "DELIVERY"] as OrderType[]).map(
                   (type) => (
                     <Button
                       key={type}
                       variant={orderType === type ? "default" : "outline"}
-                      className="flex-col h-auto py-3 px-2 gap-2"
+                      className={`flex flex-col h-auto py-4 px-2 gap-2 transition-all ${
+                        orderType === type
+                          ? "border-2 border-primary shadow-sm"
+                          : ""
+                      }`}
                       onClick={() => setOrderType(type)}
                     >
                       {getOrderTypeIcon(type)}
-                      <span>
+                      <span className="font-medium">
                         {type === "DINNER"
                           ? "Dine In"
                           : type.charAt(0) + type.slice(1).toLowerCase()}
@@ -338,33 +384,46 @@ export function CheckoutModal({
                           <BadgePercent className="h-4 w-4" />
                           Redeem Points
                         </Label>
-                        <p className="text-xs text-muted-foreground">
-                          {REDEEM_RATE} points = 1 HTG
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {REDEEM_RATE} points = 1 HTG discount
                         </p>
                       </div>
 
                       <div className="flex gap-2">
-                        <Input
-                          type="number"
-                          value={pointsToRedeem}
-                          onChange={(e) => {
-                            const value = Math.min(
-                              Number(e.target.value),
-                              maxRedeemablePoints
-                            );
-                            setPointsToRedeem(value < 0 ? 0 : value);
-                          }}
-                          min="0"
-                          max={maxRedeemablePoints}
-                          className="focus-visible:ring-primary"
-                        />
+                        <div className="relative flex-1">
+                          <Input
+                            type="number"
+                            value={pointsToRedeem}
+                            onChange={(e) => {
+                              const value = Math.min(
+                                Number(e.target.value),
+                                maxRedeemablePoints
+                              );
+                              setPointsToRedeem(value < 0 ? 0 : value);
+                            }}
+                            min="0"
+                            max={maxRedeemablePoints}
+                            className="focus-visible:ring-primary"
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                            points
+                          </div>
+                        </div>
                         <Button
                           onClick={handleRedeemPoints}
                           disabled={pointsToRedeem <= 0}
                           variant="secondary"
+                          className="whitespace-nowrap"
                         >
-                          Apply
+                          Apply Points
                         </Button>
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span>Available:</span>
+                        <span className="font-medium">
+                          {customer?.points || 0} points
+                        </span>
                       </div>
 
                       <div className="flex justify-between text-sm">
@@ -376,9 +435,9 @@ export function CheckoutModal({
                       </div>
 
                       {pointsToRedeem > 0 && (
-                        <div className="flex justify-between text-sm font-medium">
+                        <div className="flex justify-between text-sm font-medium bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
                           <span>Discount applied:</span>
-                          <span className="text-green-600">
+                          <span className="text-green-600 dark:text-green-400">
                             -{(pointsToRedeem / REDEEM_RATE).toFixed(2)} HTG
                           </span>
                         </div>
@@ -394,20 +453,20 @@ export function CheckoutModal({
             <Card>
               <CardContent className="p-4 space-y-4">
                 <div>
-                  <h3 className="font-medium text-lg flex items-center gap-2">
+                  <h3 className="font-medium text-lg flex items-center gap-2 mb-3">
                     <ShoppingBag className="h-4 w-4" />
                     Order Items
                   </h3>
-                  <div className="mt-3 space-y-2">
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                     {items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex justify-between items-center py-1 border-b last:border-0"
+                        className="flex justify-between items-center py-2 border-b last:border-0"
                       >
                         <div className="flex items-center gap-2">
                           <Badge
                             variant="outline"
-                            className="h-6 w-6 flex items-center justify-center p-0"
+                            className="h-6 w-6 flex items-center justify-center p-0 bg-muted"
                           >
                             {item.quantity}
                           </Badge>
@@ -423,14 +482,14 @@ export function CheckoutModal({
 
                 <Separator />
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
                     <span>{initialTotal.toFixed(2)}</span>
                   </div>
 
                   {pointsToRedeem > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex justify-between text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-2 rounded-md">
                       <span>Points Discount</span>
                       <span>-{(pointsToRedeem / REDEEM_RATE).toFixed(2)}</span>
                     </div>
@@ -440,50 +499,17 @@ export function CheckoutModal({
 
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>{total.toFixed(2)}</span>
+                    <span>
+                      {Number(total.toFixed(2)) - pointsToRedeem / REDEEM_RATE}
+                    </span>
                   </div>
 
                   {customer && (
-                    <div className="flex justify-between text-sm text-primary">
+                    <div className="flex justify-between text-sm text-primary bg-primary/5 p-2 rounded-md">
                       <span>Points Earned</span>
                       <span>+{Math.floor(total * POINTS_PER_DOLLAR)}</span>
                     </div>
                   )}
-                </div>
-
-                <div className="pt-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-sm">
-                      <span className="font-medium">Order Type:</span>
-                      <span className="ml-1">
-                        {orderType === "DINNER"
-                          ? "Dine In"
-                          : orderType.charAt(0) +
-                            orderType.slice(1).toLowerCase()}
-                      </span>
-                    </div>
-
-                    {orderType === "DINNER" && tableNumber && (
-                      <div className="text-sm">
-                        <span className="font-medium">Table:</span>
-                        <span className="ml-1">{tableNumber}</span>
-                      </div>
-                    )}
-
-                    {orderType === "DELIVERY" && deliveryAddress && (
-                      <div className="text-sm col-span-2">
-                        <span className="font-medium">Delivery to:</span>
-                        <span className="ml-1">{deliveryAddress}</span>
-                      </div>
-                    )}
-
-                    {notes && (
-                      <div className="text-sm col-span-2">
-                        <span className="font-medium">Notes:</span>
-                        <span className="ml-1">{notes}</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -499,20 +525,36 @@ export function CheckoutModal({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Confirm Order"
-            )}
-          </Button>
+          {currentTab !== "summary" ? (
+            <Button
+              onClick={() => {
+                // Directly set the next tab based on current tab
+                if (currentTab === "details") {
+                  setCurrentTab("customer");
+                } else if (currentTab === "customer") {
+                  setCurrentTab("summary");
+                }
+              }}
+              className="w-full sm:w-auto"
+            >
+              Suivant
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Confirm Payment"
+              )}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
