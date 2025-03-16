@@ -1,33 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, Printer } from "lucide-react"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, Printer } from "lucide-react";
+import { printOrderSummary } from "@/lib/printer";
 
 interface OrderConfirmationModalProps {
-  open: boolean
-  onClose: () => void
-  orderData: any
+  open: boolean;
+  onClose: () => void;
+  orderData: any;
 }
 
-export function OrderConfirmationModal({ open, onClose, orderData }: OrderConfirmationModalProps) {
-  const [isPrinting, setIsPrinting] = useState(false)
+export function OrderConfirmationModal({
+  open,
+  onClose,
+  orderData,
+}: OrderConfirmationModalProps) {
+  const [isPrinting, setIsPrinting] = useState(false);
 
-  if (!orderData) return null
+  if (!orderData) return null;
 
   const handlePrint = () => {
-    setIsPrinting(true)
+    setIsPrinting(true);
 
-    // Simuler l'impression
-    console.log("Impression de la commande:", orderData)
+    const printData = {
+      id: orderData.id,
+      date: new Date().toLocaleString(),
+      items: orderData.items.map((item: any) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      total: orderData.total,
+    };
 
-    // Simuler un délai d'impression
-    setTimeout(() => {
-      setIsPrinting(false)
-    }, 2000)
-  }
+    try {
+      printOrderSummary(printData);
+    } catch (error) {
+      console.error("Error printing:", error);
+    } finally {
+      setIsPrinting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -44,8 +66,12 @@ export function OrderConfirmationModal({ open, onClose, orderData }: OrderConfir
             <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            <h2 className="text-xl font-semibold mb-1">Commande #{orderData.id.slice(-4)}</h2>
-            <p className="text-muted-foreground">La commande a été enregistrée avec succès</p>
+            <h2 className="text-xl font-semibold mb-1">
+              Commande #{orderData.id.slice(-4)}
+            </h2>
+            <p className="text-muted-foreground">
+              La commande a été enregistrée avec succès
+            </p>
           </div>
 
           <div className="border rounded-lg p-4 mb-4">
@@ -69,7 +95,9 @@ export function OrderConfirmationModal({ open, onClose, orderData }: OrderConfir
               <>
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Adresse:</span>
-                  <span className="text-right">{orderData.deliveryAddress}</span>
+                  <span className="text-right">
+                    {orderData.deliveryAddress}
+                  </span>
                 </div>
                 {orderData.phoneNumber && (
                   <div className="flex justify-between mb-2">
@@ -88,7 +116,12 @@ export function OrderConfirmationModal({ open, onClose, orderData }: OrderConfir
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={handlePrint} disabled={isPrinting}>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handlePrint}
+            disabled={isPrinting}
+          >
             <Printer className="h-4 w-4" />
             {isPrinting ? "Impression..." : "Imprimer le ticket"}
           </Button>
@@ -96,6 +129,5 @@ export function OrderConfirmationModal({ open, onClose, orderData }: OrderConfir
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

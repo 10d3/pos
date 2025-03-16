@@ -39,6 +39,8 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-network": "^3.0.0-alpha.5",
     "framer-motion": "^12.4.10",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
