@@ -1,43 +1,50 @@
-import { Coffee, Cookie, Soup, UtensilsCrossed } from "lucide-react"
+// app/(dashboard)/dashboard/_components/top-dishes.tsx
+"use client";
 
-const dishes = [
-  {
-    name: "Roast chicken",
-    orders: 120,
-    icon: UtensilsCrossed,
-  },
-  {
-    name: "Carbonara Paste",
-    orders: 114,
-    icon: Soup,
-  },
-  {
-    name: "Fried egg",
-    orders: 98,
-    icon: Coffee,
-  },
-  {
-    name: "Norwegian soup",
-    orders: 82,
-    icon: Cookie,
-  },
-]
+import { categories } from "@/lib/data";
 
-export function TopDishes() {
+export function TopDishes({
+  dishes,
+}: {
+  dishes: Array<{
+    menuItemId: string;
+    _sum: {
+      quantity: number; // Now guaranteed to be number
+    };
+    menuItem?: {
+      name: string;
+      category: string;
+    };
+  }>;
+}) {
+  const getCategoryIcon = (categoryName: string) => {
+    const normalizedCategory = categoryName.toLowerCase().replace(/ /g, "_");
+    const category = categories.find((c) => c.id === normalizedCategory);
+    return category?.icon || "⭐";
+  };
+
   return (
     <div className="space-y-4">
       {dishes.map((dish) => (
-        <div key={dish.name} className="flex items-center gap-4 rounded-lg bg-muted/40 p-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background">
-            <dish.icon className="h-5 w-5" />
+        <div
+          key={dish.menuItemId}
+          className="flex items-center gap-4 rounded-lg bg-muted/40 p-3"
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background text-xl">
+            {dish.menuItem?.category
+              ? getCategoryIcon(dish.menuItem.category)
+              : "⭐"}
           </div>
           <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">{dish.name}</p>
-            <p className="text-sm text-muted-foreground">Order: {dish.orders}</p>
+            <p className="text-sm font-medium leading-none">
+              {dish.menuItem?.name || "Unknown Dish"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Sold: {dish._sum.quantity}
+            </p>
           </div>
         </div>
       ))}
     </div>
-  )
+  );
 }
-

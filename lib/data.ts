@@ -1,15 +1,32 @@
-import type { Category } from "@/lib/types"
+// import type { Category } from "@/lib/types"
 
 export const categories: Category[] = [
-  { id: "breakfast", name: "Breakfast", icon: "☕", itemCount: 13 },
-  { id: "soups", name: "Soups", icon: "🍜", itemCount: 8 },
-  { id: "pasta", name: "Pasta", icon: "🍝", itemCount: 10 },
-  { id: "sushi", name: "Sushi", icon: "🍣", itemCount: 15 },
-  { id: "main", name: "Main course", icon: "🍲", itemCount: 7 },
-  { id: "desserts", name: "Desserts", icon: "🧁", itemCount: 9 },
-  { id: "drinks", name: "Drinks", icon: "☕", itemCount: 11 },
-  { id: "alcohol", name: "Alcohol", icon: "🍷", itemCount: 12 },
-]
+  { id: "entrees", name: "Entrées", icon: "🥗" },
+  { id: "plats_principaux", name: "Plats Principaux", icon: "🍽️" },
+  { id: "pizzas", name: "Pizzas", icon: "🍕" },
+  { id: "burgers", name: "Burgers", icon: "🍔" },
+  { id: "salades", name: "Salades", icon: "🥬" },
+  { id: "pates", name: "Pâtes", icon: "🍝" },
+  { id: "grillades", name: "Grillades", icon: "🥩" },
+  { id: "fruits_de_mer", name: "Fruits de Mer", icon: "🦐" },
+  { id: "soupes", name: "Soupes", icon: "🍜" },
+  { id: "sandwiches", name: "Sandwiches", icon: "🥪" },
+  { id: "accompagnements", name: "Accompagnements", icon: "🥨" },
+  { id: "vegan", name: "Vegan", icon: "🌱" },
+  { id: "desserts", name: "Desserts", icon: "🍰" },
+  { id: "boissons", name: "Boissons", icon: "🥤" },
+  { id: "vins_alcools", name: "Vins & Alcools", icon: "🍷" },
+  { id: "menu_enfant", name: "Menu Enfant", icon: "🧸" },
+  { id: "petit_dejeuner", name: "Petit Déjeuner", icon: "🥐" },
+  { id: "specialites", name: "Spécialités", icon: "⭐" }
+];
+
+// Type definition
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+}
 
 // // export const menuItems: MenuItem[] = [
 // //   { id: "fish-and-chips", name: "Fish and chips", price: 7.5, categoryId: "main" },
@@ -29,8 +46,7 @@ export const categories: Category[] = [
 //   { id: "t4-cameron", number: "T4", customerName: "Cameron W.", itemCount: 6, status: "in process" },
 // ]
 
-
 export const siteInfo = {
   title: "T-Sherles Bar Restaurant",
-  description: ""
-}
+  description: "",
+};

@@ -1,5 +1,5 @@
-"use client"
-import type React from "react"
+"use client";
+import type React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -7,9 +7,9 @@ import {
   SidebarHeader,
   SidebarRail,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { NavMain } from "./nav-main"
-import { NavUser } from "./nav-user"
+} from "@/components/ui/sidebar";
+import { NavMain } from "./nav-main";
+import { NavUser } from "./nav-user";
 import {
   BarChart4,
   ChefHat,
@@ -21,22 +21,23 @@ import {
   Store,
   Users,
   Utensils,
-} from "lucide-react"
-import { RestaurantSwitcher } from "./restaurant-switcher"
-import { NavShortcuts } from "./nav-shortcuts"
+} from "lucide-react";
+import { RestaurantSwitcher } from "./restaurant-switcher";
+import { NavShortcuts } from "./nav-shortcuts";
+import { InstallPWA } from "../shared/InstallPWA";
 // import { TeamSwitcher } from "./team-switcher"
 
 type User = {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  role: string
-}
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+};
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  user: User
-}
+  user: User;
+};
 
 const data = {
   user: {
@@ -168,7 +169,7 @@ const data = {
       color: "bg-blue-500/10 text-blue-500",
     },
   ],
-}
+};
 
 export function AppSidebar({ user = data.user, ...props }: AppSidebarProps) {
   return (
@@ -180,16 +181,18 @@ export function AppSidebar({ user = data.user, ...props }: AppSidebarProps) {
       <SidebarContent className="flex flex-col gap-6 py-4">
         <NavMain items={data.navMain} />
         <div className="px-4 py-2">
-          <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">Quick Access</h3>
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">
+            Quick Access
+          </h3>
           <NavShortcuts shortcuts={data.shortcuts} />
         </div>
         <SidebarTrigger className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="border-t">
+        <InstallPWA />
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
-

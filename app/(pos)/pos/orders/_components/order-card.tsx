@@ -168,7 +168,7 @@ export function OrderCard({ order: initialOrder }: OrderCardProps) {
         </div>
         <div className="mt-2 pt-2 border-t flex justify-between items-center">
           <div className="text-xs font-medium text-muted-foreground">Total</div>
-          <div className="font-bold text-sm">${formatCurrency(order.total)}</div>
+          <div className="font-bold text-sm">{formatCurrency(order.total)} HTG</div>
         </div>
       </CardContent>
       <CardFooter className="p-2 bg-muted/20 flex justify-between items-center shrink-0">

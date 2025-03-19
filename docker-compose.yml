@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build: .
@@ -14,9 +12,10 @@ services:
       - .:/app
       - /app/node_modules
       - /app/.next
+    restart: always
 
   db:
-    image: postgres:15
+    image: postgres:15  # Changed to PostgreSQL 17 using alpine for smaller size
     ports:
       - "5432:5432"
     environment:
@@ -25,6 +24,29 @@ services:
       - POSTGRES_DB=pos_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
+    command: postgres -c logging_collector=on -c log_directory=/var/log/postgresql  # Added logging
+
+  backup:
+    image: postgres:15  # Changed to match db version
+    volumes:
+      - postgres_data:/source-data:ro
+      - ./backups:/backups
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pos_db
+    command: |
+      /bin/bash -c '
+        while true; do
+          pg_dump -h db -U postgres pos_db > /backups/backup-$$(date +%Y%m%d_%H%M%S).sql
+          find /backups -type f -mtime +7 -delete
+          sleep 86400
+        done
+      '
+    depends_on:
+      - db
+    restart: always
 
 volumes:
   postgres_data:

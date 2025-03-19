@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
 import type { MenuItem } from "./inventory-table";
+import { deleteMenuItem } from "@/lib/reports";
 
 interface DeleteItemDialogProps {
   item: MenuItem;
@@ -36,7 +37,7 @@ export function DeleteItemDialog({
 
     try {
       // Simuler un appel API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await deleteMenuItem(item.id);
 
       onDelete();
 
@@ -50,7 +51,7 @@ export function DeleteItemDialog({
         description:
           "Une erreur est survenue lors de la suppression du produit.",
       });
-      console.log(error)
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +73,7 @@ export function DeleteItemDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
           <AlertDialogAction
-            onClick={(e:any) => {
+            onClick={(e: any) => {
               e.preventDefault();
               handleDelete();
             }}

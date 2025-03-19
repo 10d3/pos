@@ -16,6 +16,7 @@ import { OrderConfirmationModal } from "@/components/shared/pos/order-confirmati
 import { OrderHistoryDrawer } from "@/components/shared/pos/order-history-drawer";
 import { useCartStore } from "@/lib/store/cart-store";
 import { CartSection } from "@/components/shared/pos/cart-section";
+import { CategoryType } from "@prisma/client";
 
 interface user {
   id: string;
@@ -36,10 +37,24 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
   const [lastOrderData, setLastOrderData] = useState<any>(null);
 
   const categoriesWithCounts = useMemo(() => {
-    const counts = menuItems.reduce((acc: any, item: any) => {
-      acc[item.category] = (acc[item.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    // Create a lookup map for category names to IDs (if needed)
+    // const nameToIdMap = Object.fromEntries(
+    //   categories.map(c => [c.name, c.id])
+    // );
+
+    const counts = menuItems.reduce(
+      (acc: Record<string, number>, item: any) => {
+        // Normalize category key to lowercase to match category.id format
+        const categoryKey = item.category.toLowerCase();
+
+        // If using name-based mapping instead:
+        // const categoryKey = nameToIdMap[item.category] || 'unknown';
+
+        acc[categoryKey] = (acc[categoryKey] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
 
     return categories.map((category) => ({
       ...category,
@@ -57,9 +72,45 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
     setIsConfirmationOpen(true);
   };
 
-  const filteredItems = menuItems.filter(
-    (item: any) => item.category === selectedCategory
-  );
+  // Utility function to normalize category strings
+  const normalizeCategory = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/_/g, " ") // Replace underscores with spaces
+      .replace(/&/g, "et") // Handle "Vins & Alcools" case
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove accents
+      .trim();
+
+  const filteredItems = menuItems.filter((item: any) => {
+    if (!selectedCategory) return true; // Show all if no category selected
+
+    // Normalize the selected category
+    const cleanSelected = normalizeCategory(selectedCategory);
+
+    // Normalize the item's category (could be enum key or display name)
+    const itemCategoryNormalized = normalizeCategory(item.category);
+
+    // Find matching category in your enum mapping
+    const matchedCategory = Object.entries(CategoryType).find(
+      ([key, value]) => {
+        const enumKeyNormalized = normalizeCategory(key);
+        const displayNameNormalized = normalizeCategory(value);
+
+        return (
+          enumKeyNormalized === cleanSelected ||
+          displayNameNormalized === cleanSelected
+        );
+      }
+    );
+
+    // Check if the item's category matches either enum key or display name
+    return (
+      matchedCategory &&
+      (normalizeCategory(matchedCategory[0]) === itemCategoryNormalized ||
+        normalizeCategory(matchedCategory[1]) === itemCategoryNormalized)
+    );
+  });
 
   const handleAddItem = (item: MenuItem) => {
     addItem({

@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Printer } from "lucide-react";
-import { printOrderSummary } from "@/lib/printer";
 
 interface OrderConfirmationModalProps {
   open: boolean;
@@ -28,24 +27,17 @@ export function OrderConfirmationModal({
 
   if (!orderData) return null;
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     setIsPrinting(true);
-
-    const printData = {
-      id: orderData.id,
-      date: new Date().toLocaleString(),
-      items: orderData.items.map((item: any) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      total: orderData.total,
-    };
-
     try {
-      printOrderSummary(printData);
+      const response = await fetch('/api/print', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      if (!response.ok) throw new Error('Printing failed');
     } catch (error) {
-      console.error("Error printing:", error);
+      console.error('Error printing:', error);
     } finally {
       setIsPrinting(false);
     }

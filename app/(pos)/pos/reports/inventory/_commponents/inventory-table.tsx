@@ -25,66 +25,18 @@ import { EditItemDialog } from "./edit-item-dialog";
 import { DeleteItemDialog } from "./delete-item-dialog";
 import { MoreHorizontal, Pencil, Trash2, Search } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 // Types basés sur le modèle Prisma
 export type MenuItem = {
   id: string;
   name: string;
-  description: string | null;
+  description?: string | undefined;
   category: string;
   price: number;
   available: boolean;
   createdAt: Date;
 };
-
-// Données fictives pour la démonstration
-// const demoItems: MenuItem[] = [
-//   {
-//     id: "1",
-//     name: "Pizza Margherita",
-//     description: "Tomate, mozzarella, basilic frais",
-//     category: "Pizzas",
-//     price: 10.99,
-//     available: true,
-//     createdAt: new Date("2023-01-15"),
-//   },
-//   {
-//     id: "2",
-//     name: "Burger Classic",
-//     description: "Bœuf, cheddar, salade, tomate, oignon, sauce maison",
-//     category: "Burgers",
-//     price: 12.99,
-//     available: true,
-//     createdAt: new Date("2023-02-10"),
-//   },
-//   {
-//     id: "3",
-//     name: "Salade César",
-//     description: "Laitue romaine, parmesan, croûtons, sauce césar",
-//     category: "Salades",
-//     price: 8.99,
-//     available: false,
-//     createdAt: new Date("2023-03-05"),
-//   },
-//   {
-//     id: "4",
-//     name: "Pâtes Carbonara",
-//     description: "Pâtes, lardons, œuf, parmesan, poivre",
-//     category: "Pâtes",
-//     price: 11.99,
-//     available: true,
-//     createdAt: new Date("2023-04-20"),
-//   },
-//   {
-//     id: "5",
-//     name: "Tiramisu",
-//     description: "Mascarpone, café, cacao, biscuits",
-//     category: "Desserts",
-//     price: 6.99,
-//     available: true,
-//     createdAt: new Date("2023-05-12"),
-//   },
-// ];
 
 interface InventoryTableProps {
   searchQuery: string;
@@ -103,6 +55,8 @@ export function InventoryTable({
   //   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const router = useRouter()
 
   const filteredItems = useMemo(() => {
     let filtered = items;
@@ -140,20 +94,12 @@ export function InventoryTable({
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const handleDelete = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
-    setDeletingItem(null);
-  };
-
-  const handleEdit = (updatedItem: MenuItem) => {
-    setItems(
-      items.map((item) => (item.id === updatedItem.id ? updatedItem : item))
-    );
-    setEditingItem(null);
-  };
-
-  const handleAdd = (newItem: MenuItem) => {
-    setItems([...items, newItem]);
+  const refresh = () => {
+    const timer = setTimeout(() => {
+      // router.refresh();
+      window.location.reload()
+    }, 300);
+    return () => clearTimeout(timer);
   };
 
   //   const handleSearch = (query: string) => {
@@ -175,19 +121,44 @@ export function InventoryTable({
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
+      Entrées:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+      "Plats Principaux":
+        "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
       Pizzas: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
       Burgers:
         "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
       Salades:
         "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
       Pâtes: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      Desserts:
+      Grillades:
+        "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400",
+      "Fruits de Mer":
+        "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
+      Soupes:
+        "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400",
+      Sandwiches:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      Accompagnements:
+        "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-400",
+      Vegan:
+        "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+      DESSERTS:
         "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      Boissons: "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400",
+      "Vins & Alcools":
+        "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
+      "Menu Enfant":
+        "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-400",
+      "Petit Déjeuner":
+        "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400",
+      Spécialités:
+        "bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-400",
     };
 
     return (
       colors[category] ||
-      "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+      "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
     );
   };
 
@@ -292,7 +263,7 @@ export function InventoryTable({
           item={editingItem}
           open={!!editingItem}
           onOpenChange={(open) => !open && setEditingItem(null)}
-          onSave={handleEdit}
+          onSave={refresh}
         />
       )}
 
@@ -301,7 +272,7 @@ export function InventoryTable({
           item={deletingItem}
           open={!!deletingItem}
           onOpenChange={(open) => !open && setDeletingItem(null)}
-          onDelete={() => handleDelete(deletingItem.id)}
+          onDelete={refresh}
         />
       )}
 

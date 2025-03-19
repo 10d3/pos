@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// import { useRouter } from "next/navigation";
 
 interface InventoryHeaderProps {
   onSearch: (query: string) => void;
@@ -27,6 +28,8 @@ export function InventoryHeader({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // const router = useRouter()
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -35,6 +38,14 @@ export function InventoryHeader({
 
   const handleCategoryChange = (value: string) => {
     onCategoryChange(value === "all" ? "" : value);
+  };
+
+  const refresh = () => {
+    const timer = setTimeout(() => {
+      // router.refresh();
+      window.location.reload()
+    }, 300);
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -78,7 +89,7 @@ export function InventoryHeader({
         </Select>
       </div>
 
-      <AddItemDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+      <AddItemDialog onAdd={refresh} open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
     </div>
   );
 }

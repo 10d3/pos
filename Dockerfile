@@ -16,8 +16,8 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Migration
-RUN npx prisma migrate dev
+# Run Prisma migration
+# RUN npx prisma migrate dev
 
 # Add environment variables for Next.js telemetry and build
 ENV NEXT_TELEMETRY_DISABLED=1

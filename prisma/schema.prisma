@@ -27,13 +27,13 @@ model User {
 }
 
 model MenuItem {
-  id          String      @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
-  category    String
+  category    CategoryType
   price       Float
-  available   Boolean     @default(true)
-  createdAt   DateTime    @default(now())
+  available   Boolean      @default(true)
+  createdAt   DateTime     @default(now())
   OrderItem   OrderItem[]
 }
 
@@ -119,4 +119,25 @@ enum OrderType {
   DINNER
   DELIVERY
   TAKEAWAY
+}
+
+enum CategoryType {
+  ENTREES           @map("Entrées")
+  PLATS_PRINCIPAUX  @map("Plats Principaux")
+  PIZZAS            @map("Pizzas")
+  BURGERS           @map("Burgers")
+  SALADES           @map("Salades")
+  PATES             @map("Pâtes")
+  GRILLADES         @map("Grillades")
+  FRUITS_DE_MER     @map("Fruits de Mer")
+  SOUPES            @map("Soupes")
+  SANDWICHES        @map("Sandwiches")
+  ACCOMPAGNEMENTS   @map("Accompagnements")
+  VEGAN             @map("Vegan")
+  DESSERTS          @map("Desserts")
+  BOISSONS          @map("Boissons")
+  VINS_ALCOOLS      @map("Vins & Alcools")
+  MENU_ENFANT       @map("Menu Enfant")
+  PETIT_DEJEUNER    @map("Petit Déjeuner")
+  SPECIALITES       @map("Spécialités")
 }
