@@ -5,12 +5,9 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { CategoryGrid } from "./category-grid";
 import { MenuItems } from "./menu-items";
-// import { OrderSummary } from "./_components/order-summary";
-// import { TableStatus } from "./_components/table-status";
 import { Input } from "@/components/ui/input";
 import { categories } from "@/lib/data";
 import type { MenuItem } from "@/lib/types";
-// import { useOrderStore } from "@/lib/store/useOrderStore";
 import { CheckoutModal } from "@/components/shared/pos/checkout-modal";
 import { OrderConfirmationModal } from "@/components/shared/pos/order-confirmation-modal";
 import { OrderHistoryDrawer } from "@/components/shared/pos/order-history-drawer";
@@ -35,21 +32,23 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [lastOrderData, setLastOrderData] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter out items that are out of stock or not available
+  const availableMenuItems = useMemo(() => {
+    return menuItems.filter((item: any) => {
+      // Check if item is available and has stock > 0
+      return (
+        item.available && (!item.hasOwnProperty("stock") || item.stock > 0)
+      );
+    });
+  }, [menuItems]);
 
   const categoriesWithCounts = useMemo(() => {
-    // Create a lookup map for category names to IDs (if needed)
-    // const nameToIdMap = Object.fromEntries(
-    //   categories.map(c => [c.name, c.id])
-    // );
-
-    const counts = menuItems.reduce(
+    const counts = availableMenuItems.reduce(
       (acc: Record<string, number>, item: any) => {
         // Normalize category key to lowercase to match category.id format
         const categoryKey = item.category.toLowerCase();
-
-        // If using name-based mapping instead:
-        // const categoryKey = nameToIdMap[item.category] || 'unknown';
-
         acc[categoryKey] = (acc[categoryKey] || 0) + 1;
         return acc;
       },
@@ -60,9 +59,7 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
       ...category,
       itemCount: counts[category.id] || 0,
     }));
-  }, [menuItems]);
-
-  console.log(menuItems);
+  }, [availableMenuItems]);
 
   const { items, addItem, updateQuantity } = useCartStore();
 
@@ -82,42 +79,58 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
       .replace(/[\u0300-\u036f]/g, "") // Remove accents
       .trim();
 
-  const filteredItems = menuItems.filter((item: any) => {
-    if (!selectedCategory) return true; // Show all if no category selected
+  const filteredItems = useMemo(() => {
+    let filtered = availableMenuItems;
 
-    // Normalize the selected category
-    const cleanSelected = normalizeCategory(selectedCategory);
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter((item: any) => {
+        // Normalize the selected category
+        const cleanSelected = normalizeCategory(selectedCategory);
 
-    // Normalize the item's category (could be enum key or display name)
-    const itemCategoryNormalized = normalizeCategory(item.category);
+        // Normalize the item's category
+        const itemCategoryNormalized = normalizeCategory(item.category);
 
-    // Find matching category in your enum mapping
-    const matchedCategory = Object.entries(CategoryType).find(
-      ([key, value]) => {
-        const enumKeyNormalized = normalizeCategory(key);
-        const displayNameNormalized = normalizeCategory(value);
+        // Find matching category in the enum mapping
+        const matchedCategory = Object.entries(CategoryType).find(
+          ([key, value]) => {
+            const enumKeyNormalized = normalizeCategory(key);
+            const displayNameNormalized = normalizeCategory(value);
 
-        return (
-          enumKeyNormalized === cleanSelected ||
-          displayNameNormalized === cleanSelected
+            return (
+              enumKeyNormalized === cleanSelected ||
+              displayNameNormalized === cleanSelected
+            );
+          }
         );
-      }
-    );
 
-    // Check if the item's category matches either enum key or display name
-    return (
-      matchedCategory &&
-      (normalizeCategory(matchedCategory[0]) === itemCategoryNormalized ||
-        normalizeCategory(matchedCategory[1]) === itemCategoryNormalized)
-    );
-  });
+        // Check if the item's category matches
+        return (
+          matchedCategory &&
+          (normalizeCategory(matchedCategory[0]) === itemCategoryNormalized ||
+            normalizeCategory(matchedCategory[1]) === itemCategoryNormalized)
+        );
+      });
+    }
+
+    // Apply search filter if there's a search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (item: any) =>
+          item.name.toLowerCase().includes(query) ||
+          (item.description && item.description.toLowerCase().includes(query))
+      );
+    }
+
+    return filtered;
+  }, [availableMenuItems, selectedCategory, searchQuery]);
 
   const handleAddItem = (item: MenuItem) => {
     addItem({
       id: item.id,
       name: item.name,
       price: item.price,
-      // quantity: 1,
     });
   };
 
@@ -129,7 +142,12 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
         <div className="p-4 border-b">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 bg-muted/50 border-0" placeholder="Search" />
+            <Input
+              className="pl-9 bg-muted/50 border-0"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
 
@@ -148,34 +166,29 @@ export default function RestaurantPOS({ user, menuItems }: RestaurantPOSType) {
           onUpdateQuantity={updateQuantity}
         />
 
-        {/* Table status */}
-        {/* <div className="mt-auto border-t">
-          <TableStatus tables={tables} />
-        </div> */}
+        {/* Order summary sidebar */}
+        {items.length != 0 && (
+          <CartSection onCheckout={() => setIsCheckoutOpen(true)} />
+        )}
+
+        <CheckoutModal
+          user={user}
+          open={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          onComplete={handleOrderComplete}
+        />
+
+        <OrderConfirmationModal
+          open={isConfirmationOpen}
+          onClose={() => setIsConfirmationOpen(false)}
+          orderData={lastOrderData}
+        />
+
+        <OrderHistoryDrawer
+          open={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+        />
       </div>
-
-      {/* Order summary sidebar */}
-      {items.length != 0 && (
-        <CartSection onCheckout={() => setIsCheckoutOpen(true)} />
-      )}
-
-      <CheckoutModal
-        user={user}
-        open={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        onComplete={handleOrderComplete}
-      />
-
-      <OrderConfirmationModal
-        open={isConfirmationOpen}
-        onClose={() => setIsConfirmationOpen(false)}
-        orderData={lastOrderData}
-      />
-
-      <OrderHistoryDrawer
-        open={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-      />
     </div>
   );
 }

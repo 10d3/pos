@@ -1,4 +1,11 @@
-import { CalendarIcon, PlusCircle, Search, UserPlus } from "lucide-react";
+import {
+  CalendarIcon,
+  PlusCircle,
+  Search,
+  UserPlus,
+  ShoppingBag,
+  Award,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,11 +19,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { getCustomers } from "@/lib/customer";
+import { fr } from "date-fns/locale";
 import { AddCustomerDialog } from "@/components/shared/customers/AddCustomer";
+import { getCustomersWithOrderStats } from "@/lib/customer";
 
 export default async function CustomersPage() {
-  const customers = await getCustomers();
+  const customers = await getCustomersWithOrderStats();
+
+  // Sort customers by total items purchased (descending)
+  const sortedCustomers = [...customers].sort(
+    (a, b) => (b.totalItemsPurchased || 0) - (a.totalItemsPurchased || 0)
+  );
+
+  // Get top customer
+  const topCustomer = sortedCustomers.length > 0 ? sortedCustomers[0] : null;
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -25,25 +41,25 @@ export default async function CustomersPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search customers..."
+            placeholder="Rechercher des clients..."
             className="w-full pl-8 bg-muted/40"
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="outline" className="gap-2">
             <CalendarIcon className="h-4 w-4" />
-            {new Date().toLocaleDateString()}
+            {new Date().toLocaleDateString('fr-FR')}
           </Button>
           <AddCustomerDialog />
         </div>
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Customers
+                Total Clients
               </CardTitle>
               <UserPlus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -54,7 +70,7 @@ export default async function CustomersPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Points Issued
+                Total Points Émis
               </CardTitle>
               <PlusCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -67,7 +83,7 @@ export default async function CustomersPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
-                New Customers (30 days)
+                Nouveaux Clients (30 jours)
               </CardTitle>
               <UserPlus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -86,21 +102,35 @@ export default async function CustomersPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
-                Avg. Points per Customer
+                Total Articles Achetés
               </CardTitle>
-              <PlusCircle className="h-4 w-4 text-muted-foreground" />
+              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {customers.length
-                  ? Math.round(
-                      customers.reduce(
-                        (acc, customer) => acc + customer.points,
-                        0
-                      ) / customers.length
-                    )
-                  : 0}
+                {customers.reduce(
+                  (acc, customer) => acc + (customer.totalItemsPurchased || 0),
+                  0
+                )}
               </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-amber-500/10 border-amber-500/20">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-amber-700">
+                Meilleur Client
+              </CardTitle>
+              <Award className="h-4 w-4 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold text-amber-700">
+                {topCustomer ? topCustomer.name : "Pas encore de clients"}
+              </div>
+              {topCustomer && (
+                <div className="text-xs text-amber-600 mt-1">
+                  {topCustomer.totalItemsPurchased || 0} articles achetés
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -108,30 +138,41 @@ export default async function CustomersPage() {
         <Card className="col-span-full">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">
-              Customer List
+              Liste des Clients
             </CardTitle>
             <Button variant="outline" size="sm">
-              Export
+              Exporter
             </Button>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Nom</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
+                  <TableHead>Téléphone</TableHead>
                   <TableHead>Points</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Articles Achetés</TableHead>
+                  <TableHead>Inscrit</TableHead>
+                  <TableHead>Statut</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {customers.map((customer) => (
-                  <TableRow key={customer.id}>
+                {sortedCustomers.map((customer) => (
+                  <TableRow
+                    key={customer.id}
+                    className={
+                      customer.id === topCustomer?.id ? "bg-amber-50" : ""
+                    }
+                  >
                     <TableCell className="font-medium">
                       {customer.name}
+                      {customer.id === topCustomer?.id && (
+                        <Badge className="ml-2 bg-amber-500/20 text-amber-700 border-amber-500/30">
+                          Meilleur Client
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>{customer.phone || "—"}</TableCell>
@@ -141,8 +182,14 @@ export default async function CustomersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      <Badge variant="outline" className="font-mono bg-blue-50">
+                        {customer.totalItemsPurchased || 0} articles
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
                       {formatDistanceToNow(new Date(customer.createdAt), {
                         addSuffix: true,
+                        locale: fr
                       })}
                     </TableCell>
                     <TableCell>
@@ -153,12 +200,12 @@ export default async function CustomersPage() {
                             : "bg-blue-500/10 text-blue-500 border-blue-500/20"
                         }
                       >
-                        {customer.points > 100 ? "VIP" : "Regular"}
+                        {customer.points > 100 ? "VIP" : "Régulier"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">
-                        View
+                        Voir
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -28,6 +28,7 @@ export async function createMenuItem(data: MenuItem) {
         category: data.category as CategoryType, // Ensure it's typed as CategoryType
         price: data.price,
         available: data.available,
+        stock: data.stock,
         createdAt: new Date(),
       },
     });
@@ -48,6 +49,7 @@ export async function updateMenuItem(id: string, data: Partial<MenuItem>) {
         category: data.category as CategoryType || CategoryType.SPECIALITES,
         price: data.price || 0,
         available: data.available !== undefined ? data.available : true,
+        stock: data.stock,
         createdAt: new Date(),
       },
     });

@@ -52,6 +52,9 @@ const formSchema = z.object({
     message: "Le prix doit être un nombre positif.",
   }),
   available: z.boolean().default(true),
+  stock: z.coerce.number().int().min(0, {
+    message: "Le stock doit être un nombre entier positif ou zéro.",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -80,6 +83,7 @@ export function EditItemDialog({
       category: item.category.toLowerCase(),
       price: item.price,
       available: item.available,
+      stock: item.stock || 0,
     },
   });
 
@@ -94,6 +98,7 @@ export function EditItemDialog({
         category: data.category.toUpperCase() as CategoryType,
         price: data.price,
         available: data.available,
+        stock: data.stock,
       };
 
       await updateMenuItem(item.id, updatedItem);
@@ -203,26 +208,51 @@ export function EditItemDialog({
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-medium">Prix (HTG) *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="9.99"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-medium">
+                        Prix (HTG) *
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="9.99"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="stock"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-medium">Stock *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="1"
+                          min="0"
+                          placeholder="10"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}

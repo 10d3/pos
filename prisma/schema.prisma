@@ -35,6 +35,7 @@ model MenuItem {
   available   Boolean      @default(true)
   createdAt   DateTime     @default(now())
   OrderItem   OrderItem[]
+  stock       Int          @default(0)
 }
 
 model Order {
@@ -122,22 +123,26 @@ enum OrderType {
 }
 
 enum CategoryType {
-  ENTREES           @map("Entrées")
-  PLATS_PRINCIPAUX  @map("Plats Principaux")
-  PIZZAS            @map("Pizzas")
-  BURGERS           @map("Burgers")
-  SALADES           @map("Salades")
-  PATES             @map("Pâtes")
-  GRILLADES         @map("Grillades")
-  FRUITS_DE_MER     @map("Fruits de Mer")
-  SOUPES            @map("Soupes")
-  SANDWICHES        @map("Sandwiches")
-  ACCOMPAGNEMENTS   @map("Accompagnements")
-  VEGAN             @map("Vegan")
-  DESSERTS          @map("Desserts")
-  BOISSONS          @map("Boissons")
-  VINS_ALCOOLS      @map("Vins & Alcools")
-  MENU_ENFANT       @map("Menu Enfant")
-  PETIT_DEJEUNER    @map("Petit Déjeuner")
-  SPECIALITES       @map("Spécialités")
+  ENTREES          @map("Entrées")
+  PLATS_PRINCIPAUX @map("Plats Principaux")
+  PIZZAS           @map("Pizzas")
+  BURGERS          @map("Burgers")
+  SALADES          @map("Salades")
+  PATES            @map("Pâtes")
+  GRILLADES        @map("Grillades")
+  FRUITS_DE_MER    @map("Fruits de Mer")
+  SOUPES           @map("Soupes")
+  SANDWICHES       @map("Sandwiches")
+  ACCOMPAGNEMENTS  @map("Accompagnements")
+  VEGAN            @map("Vegan")
+  DESSERTS         @map("Desserts")
+  BOISSONS         @map("Boissons")
+  VINS_ALCOOLS     @map("Vins & Alcools")
+  MENU_ENFANT      @map("Menu Enfant")
+  PETIT_DEJEUNER   @map("Petit Déjeuner")
+  SPECIALITES      @map("Spécialités")
+  BIERE            @map("Biere")
+  CHAMPAGNE        @map("Champagne")
+  GAZEUSE          @map("Gazeuse")
+  EAU              @map("Eau")
 }

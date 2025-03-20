@@ -23,7 +23,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EditItemDialog } from "./edit-item-dialog";
 import { DeleteItemDialog } from "./delete-item-dialog";
-import { MoreHorizontal, Pencil, Trash2, Search } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Search,
+  AlertTriangle,
+  AlertCircle,
+} from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -36,18 +43,21 @@ export type MenuItem = {
   price: number;
   available: boolean;
   createdAt: Date;
+  stock: number;
 };
 
 interface InventoryTableProps {
   searchQuery: string;
   menuItems: any;
   selectedCategory: string;
+  lowStockThreshold: number;
 }
 
 export function InventoryTable({
   searchQuery,
   menuItems,
   selectedCategory,
+  lowStockThreshold,
 }: InventoryTableProps) {
   const [items, setItems] = useState<MenuItem[]>(menuItems);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -56,7 +66,7 @@ export function InventoryTable({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const router = useRouter()
+  const router = useRouter();
 
   const filteredItems = useMemo(() => {
     let filtered = items;
@@ -97,7 +107,7 @@ export function InventoryTable({
   const refresh = () => {
     const timer = setTimeout(() => {
       // router.refresh();
-      window.location.reload()
+      window.location.reload();
     }, 300);
     return () => clearTimeout(timer);
   };
@@ -118,6 +128,29 @@ export function InventoryTable({
   //         item.category.toLowerCase().includes(query)
   //     );
   //   }, [items, searchQuery]);
+  const getStockStatus = (stock: number) => {
+    if (stock <= 0) {
+      return {
+        badge: "destructive",
+        text: "Rupture",
+        icon: <AlertCircle className="h-3.5 w-3.5 mr-1" />,
+      };
+    } else if (stock <= lowStockThreshold) {
+      return {
+        badge: "outline",
+        className: "bg-amber-100 text-amber-800 border-amber-300",
+        text: `Faible: ${stock}`,
+        icon: <AlertTriangle className="h-3.5 w-3.5 mr-1" />,
+      };
+    } else {
+      return {
+        badge: "outline",
+        className: "bg-green-100 text-green-800 border-green-300",
+        text: `${stock}`,
+        icon: null,
+      };
+    }
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -175,6 +208,7 @@ export function InventoryTable({
               </TableHead>
               <TableHead>Prix</TableHead>
               <TableHead>Disponibilité</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -198,53 +232,69 @@ export function InventoryTable({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge
-                      variant="outline"
-                      className={getCategoryColor(item.category)}
-                    >
-                      {item.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell max-w-[300px] truncate">
-                    {item.description || "—"}
-                  </TableCell>
-                  <TableCell>{formatPrice(item.price)}</TableCell>
-                  <TableCell>
-                    <Badge variant={item.available ? "default" : "secondary"}>
-                      {item.available ? "Disponible" : "Indisponible"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setEditingItem(item)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Modifier
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setDeletingItem(item)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+              paginatedItems.map((item) => {
+                const stockStatus = getStockStatus(item.stock);
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge
+                        variant="outline"
+                        className={getCategoryColor(item.category)}
+                      >
+                        {item.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell max-w-[300px] truncate">
+                      {item.description || "—"}
+                    </TableCell>
+                    <TableCell>{formatPrice(item.price)}</TableCell>
+                    <TableCell>
+                      <Badge variant={item.available ? "default" : "secondary"}>
+                        {item.available ? "Disponible" : "Indisponible"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={stockStatus.badge as any}
+                        className={`flex items-center ${
+                          stockStatus.className || ""
+                        }`}
+                      >
+                        {stockStatus.icon}
+                        {stockStatus.text}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setEditingItem(item)}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeletingItem(item)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
