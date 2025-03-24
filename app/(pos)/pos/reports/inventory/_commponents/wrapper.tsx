@@ -163,6 +163,37 @@ export default function Wrapper({ menuItems }: any) {
           lowStockThreshold={LOW_STOCK_THRESHOLD}
         />
       </div>
+      <div className="mt-4">
+        <button
+          onClick={() => {
+            // Create CSV content
+            const headers = ["Nom", "Catégorie", "Prix", "Stock"];
+            const csvContent = [
+              headers.join(","),
+              ...menuItems.map((item: any) =>
+                [item.name, item.category, item.price, item.stock].join(",")
+              ),
+            ].join("\n");
+
+            // Create blob and download link
+            const blob = new Blob([csvContent], {
+              type: "text/csv;charset=utf-8;",
+            });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute("href", url);
+            link.setAttribute("download", "inventory_report.csv");
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+          }}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
+          Exporter en CSV
+        </button>
+      </div>
     </div>
   );
 }
