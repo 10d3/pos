@@ -1,60 +1,65 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
+import { useEffect, useState } from "react";
 import { UsersTable } from "./_components/users-table";
 import { AddUserDialog } from "./_components/add-user-dialog";
-// import { Button } from "@/components/ui/button";
-import { Search, UserCog } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { User } from "@/types/type";
+// import { PermissionButton } from "@/components/shared/permission-button";
+import { useAuth } from "@/lib/auth/auth-context";
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
+import { PermissionButton } from "@/components/shared/PermissionButton";
+// import { ProtectedRoute } from "@/components/shared/protected-route";
 
-export default async function page() {
-  const user = (await auth()) as User;
+export default function StaffPage() {
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
-  console.log(user)
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/users");
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Redirect if not admin
-  if (!user || user.role !== "ADMIN") {
-    redirect("/pos");
+    fetchUsers();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  // Fetch all users
-  const users = await prisma.user.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-    },
-  });
-
   return (
-    <div className="flex h-full w-full flex-col">
-      <div className="flex items-center justify-between border-b px-4 py-4">
-        <div className="flex items-center gap-2">
-          <UserCog className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Gestion des Utilisateurs</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="relative w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Rechercher des utilisateurs..."
-              className="w-full pl-8 bg-muted/40"
-            />
+    <ProtectedRoute requiredPermission="staff" requiredAction="view">
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Gestion du personnel
+            </h1>
+            <p className="text-muted-foreground">
+              Gérez les comptes utilisateurs et leurs permissions
+            </p>
           </div>
-          <AddUserDialog />
-        </div>
-      </div>
 
-      <div className="flex-1 p-4">
+          <PermissionButton
+            permission="staff"
+            action="create"
+            fallback={<div className="h-10"></div>}
+            asChild
+          >
+            <AddUserDialog />
+          </PermissionButton>
+        </div>
+
         <UsersTable users={users} />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
