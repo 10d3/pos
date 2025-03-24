@@ -114,6 +114,12 @@ enum TransactionType {
 enum Role {
   ADMIN
   STAFF
+  MANAGER
+  CASHIER
+  WAITER
+  KITCHEN
+  INVENTORY
+  READONLY
 }
 
 enum OrderType {
